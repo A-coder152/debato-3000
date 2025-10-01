@@ -1,0 +1,573 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debato 3000</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8; /* Light gray-blue background */
+    color: #1e293b; /* Dark text for contrast */
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+.container {
+    background: #ffffff;
+    padding: 30px 50px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Softer shadow */
+    width: 100%;
+    max-width: 900px; /* Slightly wider container */
+}
+
+h1, h2 {
+    text-align: center;
+    color: #0077b6; /* Primary blue for headers */
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* --- Input & Forms --- */
+.input-section, .list-section, .output-section, .utility-buttons {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e2e8f0; /* Subtle border for sections */
+    border-radius: 8px;
+    background-color: #fcfcfc;
+}
+
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: #0077b6; /* Highlight border on focus */
+    outline: none;
+}
+
+textarea#pointContent {
+    min-height: 100px;
+}
+
+/* --- Buttons --- */
+button {
+    padding: 12px 20px;
+    border: none;
+    background-color: #0077b6; /* Primary button color */
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 8px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover {
+    background-color: #005f96; /* Darker blue on hover */
+}
+
+/* Special button styles */
+#addPointBtn {
+    background-color: #10b981; /* Green for main action */
+}
+#addPointBtn:hover {
+    background-color: #059669;
+}
+#aiPreset, #aiFancify {
+    background-color: #9333ea; /* Purple for AI features */
+}
+#aiPreset:hover, #aiFancify:hover {
+    background-color: #7e22ce;
+}
+#generateBtn, #cancelEditBtn {
+    background-color: #f97316; /* Orange for output generation */
+}
+#generateBtn:hover, #cancelEditBtn:hover {
+    background-color: #ea580c;
+}
+
+/* --- Point List Items --- */
+#pointList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.point-item {
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+
+.point-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Category-specific colors (more muted and harmonious) */
+.point-item.point {
+    background-color: #e6f7ff; /* Lighter Blue */
+    border-left: 5px solid #0077b6;
+}
+
+.point-item.rebuttal {
+    background-color: #fff8e6; /* Lighter Yellow/Orange */
+    border-left: 5px solid #f97316;
+}
+
+.point-item.other {
+    background-color: #f4f4f4; /* Lighter Gray */
+    border-left: 5px solid #818181;
+}
+
+.point-item .title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 5px;
+}
+
+.point-item.selected {
+    border-color: #28a745;
+    background: #e6ffed; /* Very light green when selected */
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.2);
+}
+
+/* --- Point Actions --- */
+.point-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.point-actions button {
+    font-size: 0.75em;
+    padding: 6px 10px;
+}
+
+/* --- Output and Utility --- */
+#outputBox {
+    min-height: 250px;
+    background-color: #f7f7f7;
+    border: 1px solid #cbd5e1;
+    padding: 15px;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+.utility-buttons {
+    text-align: left; /* Align utility buttons to the left of the section */
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.utility-buttons button {
+    margin: 0;
+    flex-shrink: 0;
+}
+.utility-buttons input {
+    margin-bottom: 0;
+}
+
+/* Inline format for category inputs */
+.add-point-div {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+}
+.add-point-div p {
+    font-weight: 500;
+    color: #475569;
+    min-width: 8rem;
+}
+#aiPresetProgress, #aiFancifyProgress {
+    display: none;
+    font-style: italic;
+    color: #9333ea;
+    padding: 5px;
+    text-align: center;
+    justify-content: center;
+}
+</style>
+</head>
+<body>
+<div class="container">
+        <h1>Debato 3000</h1>
+        
+        <div class="input-section">
+            <select id="pointCategory">
+                <option value="point">Point</option>
+                <option value="rebuttal">Rebuttal</option>
+                <option value="other" selected>Other</option>
+            </select>
+            <input type="text" id="pointTitle" placeholder="Point Title">
+            <div id="pointFormatDiv"></div>
+            <textarea id="pointContent" placeholder="point, reason, evidence, link"></textarea>
+            <div>
+            <button id="aiPreset">Fill out with AI (risky)</button>
+            <button id="addPointBtn">Add Point</button>
+            <button id="cancelEditBtn" style="display: none;">Cancel Edit</button>
+            </div>
+        </div>
+        <p id="aiPresetProgress" style="display: none;">Waiting on AI response...</p>
+        
+        <div class="list-section">
+            <h2>Your Points</h2>
+            <ul id="pointList">
+                </ul>
+        </div>
+        
+        <div class="output-section">
+            <h2>Speech Draft</h2>
+            <textarea id="outputBox"></textarea>
+            <p id="infoTracker"></p>
+            <button id="generateBtn">Generate Final Draft</button>
+            <button id="aiFancify">Fancify with AI (risky)</button>
+        </div>
+        <p id="aiFancifyProgress" style="display: none;">Waiting on AI response...</p>
+        
+        <div class="utility-buttons">
+            <input type="text" id="factCheckInput" placeholder="Enter Fact">
+            <button id="factCheckBtn">Fact Check on Google Scholar</button>
+        </div>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const addPointBtn = document.getElementById('addPointBtn');
+    const pointCategorySelect = document.getElementById('pointCategory');
+    const pointTitleInput = document.getElementById('pointTitle');
+    const pointContentInput = document.getElementById('pointContent');
+    const pointFormatDiv = document.getElementById('pointFormatDiv');
+    const pointList = document.getElementById('pointList');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const generateBtn = document.getElementById('generateBtn');
+    const outputBox = document.getElementById('outputBox');
+    const factCheckBtn = document.getElementById('factCheckBtn');
+    const factCheckInput = document.getElementById('factCheckInput');
+    const aiFancify = document.getElementById('aiFancify');
+    const aiPreset = document.getElementById('aiPreset');
+    const aiFancifyProgress = document.getElementById('aiFancifyProgress')
+    const aiPresetProgress = document.getElementById('aiPresetProgress')
+    const infoTracker = document.getElementById('infoTracker')
+
+    function getRandom(randList) {
+        return randList[Math.floor(Math.random() * randList.length)]
+    }
+
+    function aiRequest(prompt){
+        aiFancifyProgress.style.display = "flex";
+        aiPresetProgress.style.display = "flex";
+        return fetch("https://ai.hackclub.com/chat/completions", {
+				method: "POST",
+				headers: {"Content-Type": "application/json"},
+				body: JSON.stringify({
+					messages:[{role: "user", content: prompt}]
+				})
+			}).then(res => {
+				if (!res.ok) {
+					throw new Error(`oopsie: http is ${res.status}`)
+				} 
+				return res.json()
+			}).then(data => {
+				if (data.choices && data.choices.length > 0){
+					let aiReturned = data.choices[0].message.content
+					aiReturned = aiReturned.substring(aiReturned.lastIndexOf(">") + 1).trim()
+                    aiFancifyProgress.style.display = "none"
+                    aiPresetProgress.style.display = "none"
+                    return aiReturned
+				} else { return "the ai is trolling...."}
+			}).catch(error =>{
+				console.log(error)
+			});
+    }
+
+    function updateSpeechInfo(){
+        const speechWords = outputBox.value.split(" ").length
+        const speechTime = Math.round(speechWords / 15.0) / 10.0
+        infoTracker.textContent = `${speechWords} words, ${speechTime} minutes speaking time`
+    }
+
+    function resetPoint(){
+        addPointBtn.textContent = "Add Point"
+        pointTitleInput.value = '';
+        pointContentInput.value = '';
+        pointTitleInput.value = "";
+        pointTitleInput.readOnly = false;
+        cancelEditBtn.style.display = 'none';
+        if (pointContentInput.style.display === 'none'){
+                let pdc1 = document.getElementById('pdc1')
+                let pdc2 = document.getElementById('pdc2')
+                let pdc3 = document.getElementById('pdc3')
+                let pdc4 = document.getElementById('pdc4')
+                pdc1.value = '';
+                pdc2.value = '';
+                pdc3.value = '';
+                pdc4.value = '';
+            }
+    }
+
+    function changeCategory(){
+        resetPoint()
+        const category = pointCategorySelect.value;
+        if (category === 'point') {
+            pointContentInput.style.display = 'none';
+            //pointContentInput.placeholder = 'point, reason, evidence, link';
+            pointFormatDiv.innerHTML = `
+            <div class="add-point-div"><p>Additionally,</p><input id="pdc1" type="text" placeholder="Point"></div>
+            <div class="add-point-div"><p>This is because </p><input id="pdc2" type="text" placeholder="Reason"></div>
+            <div class="add-point-div"><p>Evidence: </p><input id="pdc3" type="text" placeholder="Study"></div>
+            <div class="add-point-div"><p>Therefore, </p><input id="pdc4" type="text" placeholder="Link"></div>`
+        } else if (category === 'rebuttal') {
+            pointContentInput.style.display = 'none';
+            //pointContentInput.placeholder = 'point, reason, evidence, link';
+            pointFormatDiv.innerHTML = `
+            <div class="add-point-div"><p>You mentioned that</p><input id="pdc1" type="text" placeholder="Point against"></div>
+            <div class="add-point-div"><p>However, it is actually</p><input id="pdc2" type="text" placeholder="Rebuttal"></div>
+            <div class="add-point-div"><p>This is proven by</p><input id="pdc3" type="text" placeholder="Study"></div>
+            <div class="add-point-div"><p>Therefore, </p><input id="pdc4" type="text" placeholder="Link"></div>`
+        } else {
+            pointContentInput.style.display = 'flex';
+            pointContentInput.placeholder = 'Enter your response here...';
+            pointFormatDiv.innerHTML = '';
+        }
+    }
+
+    // Change placeholder based on category
+    pointCategorySelect.addEventListener('change', () => changeCategory());
+    
+    aiPreset.addEventListener('click', () => {
+    if (pointCategorySelect.value == "other") {return;}
+    const pointTitleVal = pointTitleInput.value.trim()
+    let template;
+    if (pointCategorySelect.value === "point"){
+        template = "Point overview | Point reasoning | Evidence/Study | Link to point overview"
+    } else if (pointCategorySelect.value === "rebuttal"){
+        template = "Point being rebutted | Rebuttal | Evidence/Study | Link to point"
+    }
+    aiRequest(`You are given the following point, and must fill out the template without mentioning it: ${template}. The point title is ${pointTitleVal}. Fill out the template with a sentence or two for each field. Return with a | between each response.
+    Make sure EVERY section is separated correctly. IMPORTANT: The templates do not count as sections and should NOT be returned as part of the response. Do not include newlines in the response. The response should only contain 3 | when done correctly.`).then(resultPoint => {
+    resultPoint = resultPoint.split("|");
+    document.getElementById('pdc1').value = resultPoint[0]
+    document.getElementById('pdc2').value = resultPoint[1]
+    document.getElementById('pdc3').value = resultPoint[2]
+    document.getElementById('pdc4').value = resultPoint[3]})
+
+    })
+
+    // Add new point/rebuttal
+    addPointBtn.addEventListener('click', () => {
+        if (pointContentInput.style.display === 'none'){
+            let pdc1 = document.getElementById('pdc1').value.trim()
+            let pdc2 = document.getElementById('pdc2').value.trim()
+            let pdc3 = document.getElementById('pdc3').value.trim()
+            let pdc4 = document.getElementById('pdc4').value.trim()
+            pointContentInput.value = `${pdc1} | ${pdc2} | ${pdc3} | ${pdc4}`
+            console.log("bub", pdc1, pointContentInput.value.trim())
+        }
+        
+        const title = pointTitleInput.value.trim()
+        const titleDashed = title.replaceAll(' ', '-');
+        const content = pointContentInput.value.trim();
+        const category = pointCategorySelect.value;
+
+        if (title && content) {
+        if (addPointBtn.textContent == "Add Point"){
+            const li = document.createElement('li');
+            li.classList.add('point-item', category, titleDashed);
+            li.innerHTML = `
+                <div class="title">${title}</div>
+                <div class="content" style="display:none;">${content}</div>
+                <div class="point-actions">
+                    <button class="edit-btn">Edit</button>
+                    <button class="toggle-btn">Select</button>
+                    <button class="mentioned-btn">Mention</button>
+                    <button class="up-btn">Move Up</button>
+                    <button class="down-btn">Move Down</button>
+                    <button class="delete-btn">Delete</button>
+                </div>
+            `;
+            pointList.appendChild(li);
+            resetPoint()
+            // Clear input fields
+            
+            } else {
+                const li = pointList.querySelector(`.${titleDashed}`)
+                li.querySelector('.content').textContent = content
+                addPointBtn.textContent = "Add Point"
+            }
+        } else {
+            console.log(title,"tung",  content)
+        }
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+        resetPoint()
+    })
+
+    // Handle button clicks within the list
+    pointList.addEventListener('click', (e) => {
+        const item = e.target.closest('.point-item');
+        if (!item) return;
+
+        if (e.target.classList.contains('toggle-btn')) {
+            item.classList.toggle('selected');
+            e.target.textContent = item.classList.contains('selected') ? 'Deselect' : 'Select';
+        } else if (e.target.classList.contains('mentioned-btn')) {
+            item.classList.toggle('mentioned');
+            e.target.textContent = item.classList.contains('mentioned') ? 'Un-mention' : 'Mention';
+        } else if (e.target.classList.contains('up-btn')) {
+            const prevItem = item.previousElementSibling;
+            if (prevItem) {
+                pointList.insertBefore(item, prevItem);
+            }
+        } else if (e.target.classList.contains('down-btn')) {
+            const nextItem = item.nextElementSibling;
+            if (nextItem) {
+                pointList.insertBefore(nextItem, item);
+            }
+        } else if (e.target.classList.contains('delete-btn')) {
+            item.remove();
+        } else if (e.target.classList.contains('edit-btn')) {
+            if (!item.classList.contains('other')){
+            pointCategorySelect.value = item.classList.contains('point') ? "point" : "rebuttal"
+            changeCategory()
+            const content = item.querySelector('.content').textContent.split(" | ");
+            let pdc1 = document.getElementById('pdc1')
+            let pdc2 = document.getElementById('pdc2')
+            let pdc3 = document.getElementById('pdc3')
+            let pdc4 = document.getElementById('pdc4')
+            pdc1.value = content[0];
+            pdc2.value = content[1];
+            pdc3.value = content[2];
+            pdc4.value = content[3];
+        } else {
+            pointCategorySelect.value = "other"
+            changeCategory()
+            pointContentInput.value = item.querySelector('.content').textContent}
+            }
+            pointTitleInput.value = item.querySelector(".title").textContent
+            pointTitleInput.readOnly = true
+            addPointBtn.textContent = "Update Point"
+            cancelEditBtn.style.display = "flex";
+    });
+
+    // Generate final draft
+    generateBtn.addEventListener('click', () => {
+        const selectedItems = pointList.querySelectorAll('.point-item.selected');
+        let combinedText = [];
+        const pointTransitions = [
+            "Furthermore,", 
+            "In addition,", 
+            "Additionally,", 
+            "Moreover,", 
+            "Beyond this,"
+        ];
+        const rebuttalTransitions = [
+            "You mentioned that",
+            "I'd like to address that",
+            "My opponent said that"
+        ]
+        const proveTransitions = [
+            "This is proven by",
+            "This is because",
+            "The reasoning here is that"
+        ]
+        const contradictTransitions = [
+            "However, in reality",
+            "But the truth is that",
+            "My counterargument is: "
+        ];
+        const mentions=[
+            "As mentioned previously,",
+            "As my colleague stated beforehand,",
+            "Building off of the last speaker,",
+            "A point mentioned by my colleague here is that"
+        ]
+        const studyTransitions = [
+            "This is proven by",
+            "Evidence for this includes",
+            "For example,"
+        ]
+        const endTransitions = [
+            "Therefore,",
+            "As a result,",
+            "So,",
+            "As such,",
+            "This means that"
+        ]
+
+        selectedItems.forEach((item, index) => {
+            const content = item.querySelector('.content').textContent;
+            const category = item.classList.contains('point') ? 'point' : (item.classList.contains('rebuttal') ? 'rebuttal' : 'other');
+            const isMentioned = item.classList.contains('mentioned');
+
+            if (index > 0) {
+                let transition = '';
+                if (category === 'point') {
+                    transition = getRandom(pointTransitions);
+                } else if (category === 'rebuttal') {
+                    transition = getRandom(rebuttalTransitions);
+                }
+                
+                if (transition) {
+                    combinedText.push(transition);
+                }
+
+                if (isMentioned) {
+                    //const previousItemTitle = selectedItems[index - 1].querySelector('.title').textContent;
+                    combinedText.push(getRandom(mentions));
+                }
+            }
+            if (category == 'other'){
+            combinedText.push(content);}
+            else {
+                const contentList = content.split(' | ')
+                const secondTransition = category == 'point' ? getRandom(proveTransitions) : getRandom(rebuttalTransitions)
+                const thirdTransition = getRandom(studyTransitions)
+                const lastTransition = getRandom(endTransitions)
+                combinedText.push(`${contentList[0]}. ${secondTransition} ${contentList[1]}. ${thirdTransition} ${contentList[2]}. ${lastTransition} ${contentList[3]}.`)
+            }
+        });
+
+        outputBox.value = combinedText.join(' ');
+        updateSpeechInfo()
+    });
+
+    outputBox.addEventListener('input', () => {
+    updateSpeechInfo()
+    })
+
+    // Fact Check button functionality
+    factCheckBtn.addEventListener('click', () => {
+        const factToCheck = factCheckInput.value.trim();
+        window.open(`https://scholar.google.com/scholar?q=${factToCheck}`, '_blank');
+    });
+
+    aiFancify.addEventListener('click', () => {
+        const speechDraft = outputBox.value
+        aiRequest(`You are asked to rewrite this debate speech to make it more powerful and use more literary devices and emotional anecdotes. The speech is as follows: ${speechDraft}. Include all the talking points while adding more powerful 
+        literary devices and techniques. Do not mention the techniques used, just return the speech. Write with the grammar and techniques of a high school students`).then(resultFancify => {
+        outputBox.value = resultFancify
+        updateSpeechInfo()
+        })
+    })
+});
+</script>
+</div>
+</div>
+</body>
+</html>
