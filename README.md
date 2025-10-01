@@ -1,10 +1,11 @@
 # Debato 3000: The way to win your debates!
 
-Debato 3000 is a website designed to help quickly draft, organize, and refine debate arguments. 
+Debato 3000 is a website designed to help quickly draft, organize, and refine debate arguments.\
 It combines a clean, modern frontend with powerful features, offering structured point creation, AI-powered content generation, and dynamic speech assembly.
 
 
 
+  
 ## ✨ Features
 
 * **Structured Point Creation:** Easily define points, rebuttals, or free-form statements.
@@ -43,3 +44,13 @@ It combines a clean, modern frontend with powerful features, offering structured
 6.  **Generate:** Click **"Generate Final Draft"** to assemble your speech in the **Speech Draft** box. Review the word count and time estimate below.
 7.  **Refine:** Use **"Fancify with AI"** or manually edit the draft.
 8.  **Fact Check:** Use the utility bar to quickly search **Google Scholar** for any supporting or conflicting facts.
+
+***
+## AI Usage
+AI was used in the following:
+* CSS Template and design.
+* Website initial draft.
+* README Markdown formatting and structure.\
+While this project, especially its features, were not made by AI, I felt that using the "Made with AI" box was necessary as a result of the above usage.
+Note that this was a very painstaking project for me to do lol, you can see by my devlogs.
+Do not take my usage of AI as AI creating the whole thing as I did a vast portion of it.
